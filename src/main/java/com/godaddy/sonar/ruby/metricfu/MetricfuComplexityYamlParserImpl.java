@@ -3,19 +3,22 @@ package com.godaddy.sonar.ruby.metricfu;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.yaml.snakeyaml.Yaml;
 import org.apache.commons.lang.StringUtils;
+import org.yaml.snakeyaml.Yaml;
 
 public class MetricfuComplexityYamlParserImpl implements MetricfuComplexityYamlParser
 {
+    private List<Map<String, Object>> saikuroFilesResult;
+
     @SuppressWarnings("unchecked")
     public List<RubyFunction> parseFunctions(String fileNameFromModule, File resultsFile) throws IOException
     {
+
         List<RubyFunction> rubyFunctionsForFile = new ArrayList<RubyFunction>();
 
         String fileString = FileUtils.readFileToString(resultsFile, "UTF-8");
@@ -31,23 +34,8 @@ public class MetricfuComplexityYamlParserImpl implements MetricfuComplexityYamlP
             fileString = StringUtils.remove(fileString, stringToRemove);
         }
 
-        Yaml yaml = new Yaml();
-
-        Map<String, Object> metricfuResult = (Map<String, Object>) yaml.loadAs(fileString, Map.class);
-        Map<String, Object> saikuroResult = (Map<String, Object>) metricfuResult.get(":saikuro");
-        ArrayList<Map<String, Object>> saikuroFilesResult = (ArrayList<Map<String, Object>>) saikuroResult.get(":files");
-
-        Map<String, Object> fileInfoToWorkWith = new HashMap<String, Object>();
-        for (Map<String, Object> fileInfo : saikuroFilesResult)
-        {
-            String fileNameFromResults = (String) fileInfo.get(":filename");
-
-            if (fileNameFromResults.contains(fileNameFromModule))
-            {
-                fileInfoToWorkWith = fileInfo;
-                break;
-            }
-        }
+        loadSaikuroResults(fileString);
+        Map<String, Object> fileInfoToWorkWith = findFileInResults(fileNameFromModule, saikuroFilesResult);
 
         if (fileInfoToWorkWith.size() == 0)
         {
@@ -72,5 +60,27 @@ public class MetricfuComplexityYamlParserImpl implements MetricfuComplexityYamlP
             }
         }
         return rubyFunctionsForFile;
+    }
+
+    private Map<String, Object> findFileInResults(String filename, List<Map<String, Object>> results)
+    {
+        for (Map<String, Object> fileInfo : results) {
+            String fileNameFromResults = (String) fileInfo.get(":filename");
+            if (fileNameFromResults.contains(filename)) {
+                return fileInfo;
+            }
+        }
+        return Collections.emptyMap();
+    }
+
+    @SuppressWarnings("unchecked")
+    private synchronized void loadSaikuroResults(String fileString) {
+        if (saikuroFilesResult == null) {
+            Yaml yaml = new Yaml();
+
+            Map<String, Object> metricfuResult = (Map<String, Object>) yaml.loadAs(fileString, Map.class);
+            Map<String, Object> saikuroResult = (Map<String, Object>) metricfuResult.get(":saikuro");
+            saikuroFilesResult = (List<Map<String, Object>>) saikuroResult.get(":files");
+        }
     }
 }
