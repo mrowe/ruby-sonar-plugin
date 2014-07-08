@@ -9,10 +9,13 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 public class MetricfuComplexityYamlParserImpl implements MetricfuComplexityYamlParser
 {
+    private static final Logger LOG = LoggerFactory.getLogger(MetricfuComplexityYamlParserImpl.class);
     private List<Map<String, Object>> saikuroFilesResult;
 
     @SuppressWarnings("unchecked")
@@ -40,6 +43,7 @@ public class MetricfuComplexityYamlParserImpl implements MetricfuComplexityYamlP
         if (fileInfoToWorkWith.size() == 0)
         {
             // file has no methods returning empty function list
+            LOG.debug("No saikuro results found for " + fileNameFromModule);
             return new ArrayList<RubyFunction>();
         }
 
