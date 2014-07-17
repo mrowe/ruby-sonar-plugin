@@ -6,6 +6,8 @@ import com.godaddy.sonar.ruby.core.RubySourceImporter;
 import com.godaddy.sonar.ruby.core.profiles.SonarWayProfile;
 import com.godaddy.sonar.ruby.metricfu.MetricfuComplexitySensor;
 import com.godaddy.sonar.ruby.metricfu.MetricfuComplexityYamlParserImpl;
+import com.godaddy.sonar.ruby.metricfu.MetricfuRailsBestPracticesSensor;
+import com.godaddy.sonar.ruby.metricfu.RailBestPracticeMetric;
 import com.godaddy.sonar.ruby.simplecovrcov.SimpleCovRcovJsonParserImpl;
 import com.godaddy.sonar.ruby.simplecovrcov.SimpleCovRcovSensor;
 
@@ -26,6 +28,7 @@ public final class RubyPlugin extends SonarPlugin
     public List<Class<? extends Extension>> getExtensions()
     {
         List<Class<? extends Extension>> extensions = new ArrayList<Class<? extends Extension>>();
+        extensions.add(RailBestPracticeMetric.class);
         extensions.add(Ruby.class);
         extensions.add(SimpleCovRcovSensor.class);
         extensions.add(SimpleCovRcovJsonParserImpl.class);
@@ -34,6 +37,7 @@ public final class RubyPlugin extends SonarPlugin
         extensions.add(RubySourceCodeColorizer.class);
         extensions.add(RubySensor.class);
         extensions.add(MetricfuComplexitySensor.class);
+        extensions.add(MetricfuRailsBestPracticesSensor.class);
 
         // Profiles
         extensions.add(SonarWayProfile.class);

@@ -40,7 +40,8 @@ public class MetricfuComplexitySensor implements Sensor
 
     public void analyse(Project project, SensorContext context)
     {
-        File resultsFile = new File("tmp/metric_fu/report.yml");
+        File resultsFile = new File(System.getProperty("project.home") + java.io.File.separator + "tmp/metric_fu/report.yml");
+
         List<File> sourceDirs = moduleFileSystem.sourceDirs();
         List<File> rubyFilesInProject = moduleFileSystem.files(FileQuery.onSource().onLanguage(project.getLanguageKey()));
 
@@ -52,7 +53,7 @@ public class MetricfuComplexitySensor implements Sensor
                 analyzeFile(file, sourceDirs, context, resultsFile);
             } catch (IOException e)
             {
-                LOG.error("Can not analyze the file " + file.getAbsolutePath() + " for complexity");
+                LOG.error("Can not analyze the file " + file.getAbsolutePath() + " for complexity", e);
             }
         }
     }
